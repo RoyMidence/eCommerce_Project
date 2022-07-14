@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -30,14 +29,13 @@ class MainActivity : AppCompatActivity() {
         mAuth = Firebase.auth
 
         loginButton.setOnClickListener{
-            var email = editTextEmail.text.toString()
-            var password = editTextPassword.text.toString()
+            val email = editTextEmail.text.toString()
+            val password = editTextPassword.text.toString()
             mAuth.signInWithEmailAndPassword(email,password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         // Start activity here
-                        //val intent = Intent(this, CategoryActivity::class.java)
-                        startActivity(Intent(this, CategoryActivity::class.java))
+                        startActivity(Intent(this, StoreActivity::class.java))
                     } else {
                         // Bad login
                         Toast.makeText(baseContext, "Login Failed", Toast.LENGTH_SHORT).show()
