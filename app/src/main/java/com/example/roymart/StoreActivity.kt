@@ -2,10 +2,8 @@ package com.example.roymart
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.navigation.NavigationBarView
 
 class StoreActivity : AppCompatActivity() {
     private lateinit var bottomNav: BottomNavigationView
