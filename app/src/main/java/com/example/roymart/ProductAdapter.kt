@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ProductAdapter(private val dataSet: Array<Product>) :
+class ProductAdapter(private val dataSet: ArrayList<Product>) :
     RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -36,4 +36,10 @@ class ProductAdapter(private val dataSet: Array<Product>) :
     }
 
     override fun getItemCount() = dataSet.size
+
+    fun setData(newData: ArrayList<Product> ) {
+        dataSet.clear()
+        dataSet.addAll(newData)
+        notifyDataSetChanged()
+    }
 }

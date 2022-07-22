@@ -2,25 +2,30 @@ package com.example.roymart
 
 import android.graphics.Bitmap
 
-class Product(pID: Int, pName: String, pImage: Bitmap,
-            pRating: Float, pPrice: Float, pCategory: String) {
-
-    var productID: Int
+class Product {
     var productName: String
-    var productImage: Bitmap
-    var productRating: Float
-    var productPrice: Float
     var productCategory: String
+    var productRating: Number
+    var productPrice: Number
+    var productImage: Bitmap?
+    var productID: String
 
-    init {
-        productID = pID
-        productName = pName
-        productImage = pImage
-        productRating = pRating
-        productPrice = pPrice
-        productCategory = pCategory
+    constructor(n: String, c: String, r: Double, p: Double,
+                i: Bitmap, ID: String) {
+        productName = n
+        productCategory = c
+        productRating = r
+        productPrice = p
+        productImage = i
+        productID = ID
     }
 
-
-
+    constructor() {
+        productName = ""
+        productCategory = ""
+        productRating = 0.0
+        productPrice = 0.0
+        productImage = null
+        productID = ""
+    }
 }

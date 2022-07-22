@@ -1,58 +1,85 @@
 package com.example.roymart
 
+import android.content.ContentValues.TAG
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ShopFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ShopFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private val ONE_MEGABYTE: Long = 1024*1024*5
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+
+    private lateinit var recyclerViewShop: RecyclerView
+    private lateinit var adapter: ProductAdapter
+    var list= ArrayList<Product>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_shop, container, false)
+        var view = inflater.inflate(R.layout.fragment_shop, container, false)
+
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ShopFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ShopFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val layoutManager = GridLayoutManager(context,2)
+        recyclerViewShop = view.findViewById<RecyclerView>(R.id.recyclerViewShop)
+        recyclerViewShop.layoutManager = layoutManager
+        adapter = ProductAdapter(list)
+        recyclerViewShop.adapter = adapter
+        getProducts()
+
+    }
+
+    private fun getProducts() {
+        val db = Firebase.firestore
+        db.collection("Products")
+            .get()
+            .addOnCompleteListener {
+                if(it.isSuccessful) {
+                    list.clear()
+                    for (doc in it.result) {
+                        var temp = Product()
+                        temp.productID = doc.id
+                        temp.productName = doc.getString("Name")!!
+                        temp.productCategory = doc.getString("Category")!!
+                        temp.productRating = doc.getDouble("Rating")!!
+                        temp.productPrice = doc.getDouble("Price")!!
+
+                        // Create Storage Reference
+                        // Get Product Image
+                        var storageReference = Firebase.storage.reference
+                        var imageRef = storageReference.child("RoyMart/" + doc.getString("Image"))
+
+                        imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener {
+                            // On Success
+                            temp.productImage = BitmapFactory.decodeByteArray(it,0,it.size)
+                            list.add(temp)
+                            adapter.notifyDataSetChanged()
+                            Log.d(TAG, "Just after add")
+                        }.addOnFailureListener { exception ->
+                            // On Fail
+                            Log.d(TAG, "Failed to download image ", exception)
+                        }
+                    }
+                    adapter.setData(list)
+                } else {
+                    Log.d(TAG, "Failed to load shop ", it.exception)
                 }
             }
     }
