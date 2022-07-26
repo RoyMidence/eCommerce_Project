@@ -7,9 +7,10 @@
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:id="@+id/textViewCartItem"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/cart"
-        android:layout_marginTop="80dp"/>
+        android:layout_height="85dp"
+        android:layout_marginTop="80dp"
+        android:text="@string/cart" />
 
 </FrameLayout>

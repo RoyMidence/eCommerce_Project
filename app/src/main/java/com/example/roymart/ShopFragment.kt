@@ -8,9 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -22,7 +20,7 @@ class ShopFragment : Fragment() {
 
     private lateinit var recyclerViewShop: RecyclerView
     private lateinit var adapter: ProductAdapter
-    var list= ArrayList<Product>()
+    private var list= ArrayList<Product>()
 
 
     override fun onCreateView(
@@ -30,15 +28,13 @@ class ShopFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        var view = inflater.inflate(R.layout.fragment_shop, container, false)
-
-        return view
+        return inflater.inflate(R.layout.fragment_shop, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val layoutManager = GridLayoutManager(context,2)
-        recyclerViewShop = view.findViewById<RecyclerView>(R.id.recyclerViewShop)
+        recyclerViewShop = view.findViewById(R.id.recyclerViewShop)
         recyclerViewShop.layoutManager = layoutManager
         adapter = ProductAdapter(list)
         recyclerViewShop.adapter = adapter
@@ -63,8 +59,8 @@ class ShopFragment : Fragment() {
 
                         // Create Storage Reference
                         // Get Product Image
-                        var storageReference = Firebase.storage.reference
-                        var imageRef = storageReference.child("RoyMart/" + doc.getString("Image"))
+                        val storageReference = Firebase.storage.reference
+                        val imageRef = storageReference.child("RoyMart/" + doc.getString("Image"))
 
                         imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener {
                             // On Success
