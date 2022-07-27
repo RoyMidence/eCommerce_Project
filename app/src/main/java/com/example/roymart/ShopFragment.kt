@@ -39,7 +39,6 @@ class ShopFragment : Fragment() {
         adapter = ProductAdapter(list)
         recyclerViewShop.adapter = adapter
         getProducts()
-
     }
 
     private fun getProducts() {
