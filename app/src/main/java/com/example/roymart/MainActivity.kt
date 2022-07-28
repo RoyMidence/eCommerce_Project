@@ -9,8 +9,15 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.paypal.checkout.PayPalCheckout
+import com.paypal.checkout.config.CheckoutConfig
+import com.paypal.checkout.config.Environment
+import com.paypal.checkout.config.SettingsConfig
+import com.paypal.checkout.createorder.CurrencyCode
+import com.paypal.checkout.createorder.UserAction
 
 class MainActivity : AppCompatActivity() {
+    private var YOUR_CLIENT_ID = "AQ7RtPsLDF8jV1UM3rmKG5aMwnVEXXWfpfWXW37dX6KTLRq6WOm62PhPvfVgbfiFo77Tf5SPmr8lPoDJ"
     private lateinit var mAuth: FirebaseAuth
     private lateinit var editTextEmail: EditText
     private lateinit var editTextPassword: EditText
@@ -18,6 +25,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val config = CheckoutConfig(
+            application = application,
+            clientId = YOUR_CLIENT_ID,
+            environment = Environment.SANDBOX,
+            returnUrl = "com.example.roymart://paypalpay",
+            currencyCode = CurrencyCode.USD,
+            userAction = UserAction.PAY_NOW,
+            settingsConfig = SettingsConfig(
+                true
+            )
+        )
+        PayPalCheckout.setConfig(config)
+
+
         setContentView(R.layout.activity_main)
 
         // get ID's for Edit Texts

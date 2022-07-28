@@ -17,6 +17,16 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import com.paypal.checkout.approve.OnApprove
+import com.paypal.checkout.cancel.OnCancel
+import com.paypal.checkout.createorder.CreateOrder
+import com.paypal.checkout.createorder.CurrencyCode
+import com.paypal.checkout.createorder.OrderIntent
+import com.paypal.checkout.createorder.UserAction
+import com.paypal.checkout.error.OnError
+import com.paypal.checkout.order.*
+import com.paypal.checkout.paymentbutton.PayPalButton
+import com.paypal.checkout.paymentbutton.PaymentButtonContainer
 
 class CartFragment : Fragment() {
     private val ONE_MEGABYTE: Long = 1024*1024*5
@@ -25,6 +35,7 @@ class CartFragment : Fragment() {
     private lateinit var recyclerViewCart: RecyclerView
     private lateinit var cartAdapter: CartAdapter
     private var list= ArrayList<Cart>()
+    private lateinit var payPalButton: PayPalButton
 
 
     override fun onCreateView(
@@ -42,6 +53,38 @@ class CartFragment : Fragment() {
         cartAdapter = CartAdapter(list)
         recyclerViewCart.adapter = cartAdapter
         getCart()
+
+        payPalButton = view.findViewById(R.id.payPalButton)
+        payPalButton.setup(
+            createOrder =
+                CreateOrder { createOrderActions->
+                    val order =
+                        Order(
+                            intent = OrderIntent.CAPTURE,
+                            appContext = AppContext(userAction = UserAction.PAY_NOW),
+                            purchaseUnitList =
+                                listOf(
+                                    PurchaseUnit(
+                                        amount =
+                                        Amount(currencyCode = CurrencyCode.USD, value = "10.00")
+                                    )
+                                )
+                        )
+                    createOrderActions.create(order)
+                },
+            onApprove =
+            OnApprove { approval ->
+                approval.orderActions.capture { captureOrderResult ->
+                    Log.i("CaptureOrder", "CaptureOrderResult: $captureOrderResult")
+                }
+            },
+            onCancel = OnCancel {
+                Log.d("OnCancel", "Buyer canceled the PayPal experience.")
+            },
+            onError = OnError { errorInfo ->
+                Log.d("OnError", "Error: $errorInfo")
+            }
+        )
     }
 
     private fun getCart() {
