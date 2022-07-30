@@ -1,7 +1,8 @@
 package com.example.roymart
 
 import android.content.ContentValues
-import android.graphics.BitmapFactory
+import android.content.ContentValues.TAG
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,14 +10,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 import com.paypal.checkout.approve.OnApprove
 import com.paypal.checkout.cancel.OnCancel
 import com.paypal.checkout.createorder.CreateOrder
@@ -26,7 +27,9 @@ import com.paypal.checkout.createorder.UserAction
 import com.paypal.checkout.error.OnError
 import com.paypal.checkout.order.*
 import com.paypal.checkout.paymentbutton.PayPalButton
-import com.paypal.checkout.paymentbutton.PaymentButtonContainer
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class CartFragment : Fragment() {
     private val ONE_MEGABYTE: Long = 1024*1024*5
@@ -36,6 +39,12 @@ class CartFragment : Fragment() {
     private lateinit var cartAdapter: CartAdapter
     private var list= ArrayList<Cart>()
     private lateinit var payPalButton: PayPalButton
+    private lateinit var textViewCartTotal: TextView
+    private var cartTotal = 0.0
+    private lateinit var userID: String
+
+    val db = Firebase.firestore
+    val user = Firebase.auth.currentUser
 
 
     override fun onCreateView(
@@ -49,6 +58,8 @@ class CartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerViewCart = view.findViewById(R.id.recyclerViewCart)
+        textViewCartTotal = view.findViewById(R.id.textViewCartTotal)
+
         recyclerViewCart.layoutManager = LinearLayoutManager(context)
         cartAdapter = CartAdapter(list)
         recyclerViewCart.adapter = cartAdapter
@@ -66,7 +77,7 @@ class CartFragment : Fragment() {
                                 listOf(
                                     PurchaseUnit(
                                         amount =
-                                        Amount(currencyCode = CurrencyCode.USD, value = "10.00")
+                                        Amount(currencyCode = CurrencyCode.USD, value = cartTotal.toString())
                                     )
                                 )
                         )
@@ -76,6 +87,46 @@ class CartFragment : Fragment() {
             OnApprove { approval ->
                 approval.orderActions.capture { captureOrderResult ->
                     Log.i("CaptureOrder", "CaptureOrderResult: $captureOrderResult")
+
+                    val ProductIDs = hashMapOf<String, Int>()
+                    for (order in list) {
+                        ProductIDs[order.ProductID!!] = order.Quantity!!
+                    }
+
+                    val docData = hashMapOf(
+                        "UserID" to userID,
+                        "DateOrdered" to Timestamp(Date()),
+                        "OrderTotal" to cartTotal,
+                        "ProductIDs" to ProductIDs
+                    )
+
+                    db.collection("Orders")
+                        .add(docData)
+                        .addOnSuccessListener { documentReference ->
+                            Log.d(TAG, "DocumentSnapshot written with ID: ${documentReference.id}")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w(TAG, "Error adding document", e)
+                        }
+
+                    db.collection("Carts")
+                        .whereEqualTo("UserID", userID)
+                        .get()
+                        .addOnSuccessListener { documents ->
+                            for (document in documents) {
+                                db.collection("Carts").document(document.id)
+                                    .delete()
+                                    .addOnSuccessListener {
+                                        list.clear()
+                                        cartAdapter.notifyDataSetChanged()
+                                        textViewCartTotal.text = getString(R.string.empty_cart)
+                                    }
+                                    .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.w(TAG, "Error getting documents: ", exception)
+                        }
                 }
             },
             onCancel = OnCancel {
@@ -89,10 +140,9 @@ class CartFragment : Fragment() {
 
     private fun getCart() {
         // get users name
-        val db = Firebase.firestore
-        val user = Firebase.auth.currentUser
 
         user?.let {
+            userID = user.uid
             db.collection("Carts")
                 .whereEqualTo("UserID", user.uid)
                 .get()
@@ -100,8 +150,10 @@ class CartFragment : Fragment() {
                     list.clear()
                     for (doc in documents) {
                         val cart = doc.toObject<Cart>()
+                        cartTotal += cart.Price!! * cart.Quantity!!
                         list.add(cart)
                     }
+                    textViewCartTotal.text = "Cart Total: " + cartTotal
                     cartAdapter.notifyDataSetChanged()
                 }.addOnFailureListener { exception ->
                     Log.d(ContentValues.TAG, "Failed to get Cart data")

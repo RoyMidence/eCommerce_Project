@@ -29,8 +29,10 @@ class CartAdapter(private val dataSet: ArrayList<Cart>) :
     }
 
     override fun onBindViewHolder(viewHolder: CartAdapter.ViewHolder, position: Int) {
+        val total = dataSet[position].Price!! * dataSet[position].Quantity!!
+
         viewHolder.textViewCartName.text= dataSet[position].ProductName
-        viewHolder.textViewTotalPrice.text = dataSet[position].Price.toString()
+        viewHolder.textViewTotalPrice.text = total.toString()
         viewHolder.textViewQuantity.text = dataSet[position].Quantity.toString()
     }
 

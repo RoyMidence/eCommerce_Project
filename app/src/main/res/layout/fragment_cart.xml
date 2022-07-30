@@ -14,17 +14,29 @@
             android:id="@+id/payPalButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="50dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewCart"
-            android:layout_width="406dp"
-            android:layout_height="591dp"
-            android:paddingTop="40dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewCartTotal" />
+
+        <TextView
+            android:id="@+id/textViewCartTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="TextView"
+            app:layout_constraintEnd_toEndOf="@+id/payPalButton"
+            app:layout_constraintStart_toStartOf="@+id/payPalButton"
             app:layout_constraintTop_toBottomOf="@+id/payPalButton" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
