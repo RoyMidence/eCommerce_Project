@@ -7,10 +7,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ProductAdapter(private val dataSet: ArrayList<Product>) :
+class ProductAdapter(private val dataSet: ArrayList<Product>, private val onClickListener: OnClickListener) :
     RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view){
         val imageViewStore: ImageView
         val textViewStoreName: TextView
         val textViewStorePrice: TextView
@@ -30,9 +30,18 @@ class ProductAdapter(private val dataSet: ArrayList<Product>) :
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        viewHolder.itemView.setOnClickListener {
+            onClickListener.onClick(dataSet[position])
+        }
+
         viewHolder.imageViewStore.setImageBitmap(dataSet[position].productImage)
         viewHolder.textViewStoreName.text = dataSet[position].productName
         viewHolder.textViewStorePrice.text = dataSet[position].productPrice.toString()
+
+    }
+
+    class OnClickListener(val clickListener: (product: Product) -> Unit) {
+        fun onClick(product: Product) = clickListener(product)
     }
 
     override fun getItemCount() = dataSet.size

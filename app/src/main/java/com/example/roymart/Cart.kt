@@ -1,9 +1,9 @@
 package com.example.roymart
 
 data class Cart(
-    val ProductID: String? = null,
+    val ProductIDs: String? = null,
     val UserID: String? = null,
     val ProductName: String? = null,
-    val Price: Double? = null,
+    val ProductPrice: Double? = null,
     val Quantity: Int? = null
 )

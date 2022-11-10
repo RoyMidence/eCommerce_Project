@@ -26,8 +26,7 @@ import com.paypal.checkout.createorder.OrderIntent
 import com.paypal.checkout.createorder.UserAction
 import com.paypal.checkout.error.OnError
 import com.paypal.checkout.order.*
-import com.paypal.checkout.paymentbutton.PayPalButton
-import java.text.SimpleDateFormat
+import com.paypal.checkout.paymentbutton.PaymentButtonContainer
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -38,7 +37,7 @@ class CartFragment : Fragment() {
     private lateinit var recyclerViewCart: RecyclerView
     private lateinit var cartAdapter: CartAdapter
     private var list= ArrayList<Cart>()
-    private lateinit var payPalButton: PayPalButton
+    private lateinit var paymentButtonContainer: PaymentButtonContainer
     private lateinit var textViewCartTotal: TextView
     private var cartTotal = 0.0
     private lateinit var userID: String
@@ -65,8 +64,8 @@ class CartFragment : Fragment() {
         recyclerViewCart.adapter = cartAdapter
         getCart()
 
-        payPalButton = view.findViewById(R.id.payPalButton)
-        payPalButton.setup(
+        paymentButtonContainer = view.findViewById(com.paypal.pyplcheckout.R.id.paymentButtonContainer)
+        paymentButtonContainer.setup(
             createOrder =
                 CreateOrder { createOrderActions->
                     val order =
@@ -90,7 +89,7 @@ class CartFragment : Fragment() {
 
                     val ProductIDs = hashMapOf<String, Int>()
                     for (order in list) {
-                        ProductIDs[order.ProductID!!] = order.Quantity!!
+                        ProductIDs[order.ProductIDs!!] = order.Quantity!!
                     }
 
                     val docData = hashMapOf(
@@ -150,7 +149,7 @@ class CartFragment : Fragment() {
                     list.clear()
                     for (doc in documents) {
                         val cart = doc.toObject<Cart>()
-                        cartTotal += cart.Price!! * cart.Quantity!!
+                        cartTotal += cart.ProductPrice!! * cart.Quantity!!
                         list.add(cart)
                     }
                     textViewCartTotal.text = "Cart Total: " + cartTotal

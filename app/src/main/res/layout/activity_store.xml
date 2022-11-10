@@ -20,10 +20,10 @@
 
     <FrameLayout
         android:id="@+id/fragment_a_container"
-        android:layout_width="410dp"
-        android:layout_height="651dp"
+        android:layout_width="411dp"
+        android:layout_height="636dp"
         app:layout_constraintBottom_toTopOf="@+id/bottomNav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

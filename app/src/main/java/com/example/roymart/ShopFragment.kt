@@ -1,6 +1,7 @@
 package com.example.roymart
 
 import android.content.ContentValues.TAG
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.ktx.firestore
@@ -36,7 +38,17 @@ class ShopFragment : Fragment() {
         val layoutManager = GridLayoutManager(context,2)
         recyclerViewShop = view.findViewById(R.id.recyclerViewShop)
         recyclerViewShop.layoutManager = layoutManager
-        adapter = ProductAdapter(list)
+        adapter = ProductAdapter(list, ProductAdapter.OnClickListener {item ->
+            // OnClickListener Stuff Here
+            // Will get image from DB again
+            // Too much hassle to move big bitmaps
+            val intent = Intent(context,ProductDetails::class.java)
+            intent.putExtra("productName",item.productName)
+            intent.putExtra("productPrice",item.productPrice.toString())
+            intent.putExtra("productID", item.productID)
+            intent.putExtra("productRating", item.productRating.toString())
+            startActivity(intent)
+        })
         recyclerViewShop.adapter = adapter
         getProducts()
     }
